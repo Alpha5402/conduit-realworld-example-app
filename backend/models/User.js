@@ -13,13 +13,21 @@ module.exports = (sequelize, DataTypes) => {
       // Articles
       this.hasMany(Article, { foreignKey: "userId", onDelete: "CASCADE" });
 
-      // Comments
-      this.hasMany(Comment, { foreignKey: "articleId" });
+      // Comments published by user
+      this.hasMany(Comment, { foreignKey: "userId", onDelete: "CASCADE" });
 
-      // Favorites
+      // Article Favorites
       this.belongsToMany(Article, {
         through: "Favorites",
         as: "favorites",
+        foreignKey: "userId",
+        timestamps: false,
+      });
+
+      // Comment Favorites (User likes Comment)
+      this.belongsToMany(Comment, {
+        through: "CommentFavorites",
+        as: "favoriteComments",
         foreignKey: "userId",
         timestamps: false,
       });
