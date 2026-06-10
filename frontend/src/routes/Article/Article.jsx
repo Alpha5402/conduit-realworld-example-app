@@ -8,6 +8,11 @@ import BannerContainer from "../../components/BannerContainer";
 import { useAuth } from "../../context/AuthContext";
 import getArticle from "../../services/getArticle";
 
+/** 统计全量字符数（包含所有Markdown标记的全部字符） */
+function countWords(text) {
+  return text?.length || 0;
+}
+
 function Article() {
   const { state } = useLocation();
   const [article, setArticle] = useState(state || {});
@@ -18,7 +23,6 @@ function Article() {
 
   useEffect(() => {
     if (state) return;
-
     getArticle({ slug, headers })
       .then(setArticle)
       .catch((error) => {
@@ -26,6 +30,8 @@ function Article() {
         navigate("/not-found", { replace: true });
       });
   }, [isAuth, slug, headers, state, navigate]);
+
+  const wordCount = countWords(body);
 
   return (
     <div className="article-page">
@@ -40,6 +46,9 @@ function Article() {
         <div className="row article-content">
           <div className="col-md-12">
             {body && <Markdown options={{ forceBlock: true }}>{body}</Markdown>}
+            <div className="article-stats" style={{ marginTop: 16, paddingTop: 12, borderTop: "1px solid #e5e5e5", color: "#999", fontSize: 13 }}>
+              <span>全文共 {wordCount} 字符</span>
+            </div>
             <ArticleTags tagList={tagList} />
           </div>
         </div>
