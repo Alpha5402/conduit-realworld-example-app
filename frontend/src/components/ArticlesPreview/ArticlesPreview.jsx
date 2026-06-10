@@ -16,9 +16,15 @@ function ArticlesPreview({ articles, loading, updateArticles }) {
 
   return articles?.length > 0 ? (
     articles.map((article) => {
+      // 生成100~100000区间的随机模拟阅读量假数据
+      const readCount = Math.floor(Math.random() * (100000 - 100 + 1)) + 100;
       return (
         <div className="article-preview" key={article.slug}>
-          <ArticleMeta author={article.author} createdAt={article.createdAt}>
+          <ArticleMeta 
+            author={article.author} 
+            createdAt={article.createdAt}
+            readCount={readCount}
+          >
             <FavButton
               favorited={article.favorited}
               favoritesCount={article.favoritesCount}

@@ -17,7 +17,7 @@ function Navbar() {
         <SourceCodeLink left />
 
         <ul className="nav navbar-nav pull-xs-right">
-          <NavItem text="Home" icon="ion-compose" url="/" />
+          <NavItem text="Home" icon="ion-home" url="/" />
 
           {isAuth && (
             <>

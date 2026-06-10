@@ -17,7 +17,7 @@ import Profile from "./routes/Profile/Profile";
 import ProfileArticles from "./routes/Profile/ProfileArticles";
 import ProfileFavArticles from "./routes/Profile/ProfileFavArticles";
 import Settings from "./routes/Settings";
-import SignUp from "./routes/SignUp";
+import Register from "./routes/Register";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -30,7 +30,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             </Route>
 
             <Route path="login" element={<Login />} />
-            <Route path="register" element={<SignUp />} />
+            <Route path="register" element={<Register />} />
 
             <Route path="settings" element={<Settings />} />
 
@@ -51,8 +51,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         </Routes>
       </AuthProvider>
     </HashRouter>
-  </React.StrictMode>,
-  );
+  </React.StrictMode>
+);
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

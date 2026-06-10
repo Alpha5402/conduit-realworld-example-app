@@ -5,6 +5,7 @@ const {
   allComments,
   createComment,
   deleteComment,
+  likeComment,
 } = require("../../controllers/comments");
 
 //? All Comments for Article
@@ -13,5 +14,7 @@ router.get("/:slug/comments", verifyToken, allComments);
 router.post("/:slug/comments", verifyToken, createComment);
 //* Delete Comment for Article
 router.delete("/:slug/comments/:commentId", verifyToken, deleteComment);
+//* Idempotent Like/Unlike Comment
+router.post("/:slug/comments/:commentId/like", verifyToken, likeComment);
 
 module.exports = router;

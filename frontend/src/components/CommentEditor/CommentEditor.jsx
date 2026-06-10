@@ -6,8 +6,9 @@ import Avatar from "../Avatar";
 
 function CommentEditor({ updateComments }) {
   const [{ body }, setForm] = useState({ body: "" });
-  const { headers, isAuth, loggedUser } = useAuth();
-  const { username, image } = loggedUser || {};
+  const { isAuthenticated, currentUser } = useAuth();
+  const { username, image, token } = currentUser || {};
+  const headers = token ? { Authorization: `Token ${token}` } : {};
   const { slug } = useParams();
 
   const handleSubmit = (e) => {
@@ -17,7 +18,7 @@ function CommentEditor({ updateComments }) {
 
     postComment({ body, headers, slug })
       .then(updateComments)
-      .then(setForm({ body: "" }))
+      .then(() => setForm({ body: "" }))
       .catch(console.error);
   };
 
@@ -25,7 +26,7 @@ function CommentEditor({ updateComments }) {
     setForm({ body: e.target.value });
   };
 
-  return isAuth ? (
+  return isAuthenticated ? (
     <form className="card comment-form" onSubmit={handleSubmit}>
       <div className="card-block">
         <textarea

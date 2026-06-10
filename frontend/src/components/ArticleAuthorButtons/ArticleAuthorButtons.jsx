@@ -3,11 +3,11 @@ import { useAuth } from "../../context/AuthContext";
 import deleteArticle from "../../services/deleteArticle";
 
 function ArticleAuthorButtons({ body, description, slug, tagList, title }) {
-  const { headers, isAuth } = useAuth();
+  const { headers, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   const handleClick = () => {
-    if (!isAuth) return alert("You need to login first");
+    if (!isAuthenticated) return alert("You need to login first");
 
     const confirmation = window.confirm("Want to delete the article?");
     if (!confirmation) return;
