@@ -7,6 +7,8 @@ import ArticleTags from "../../components/ArticleTags";
 import BannerContainer from "../../components/BannerContainer";
 import { useAuth } from "../../context/AuthContext";
 import getArticle from "../../services/getArticle";
+import { wordCount } from "../../helpers/wordCount";
+import WordCount from "../../components/WordCount";
 
 function Article() {
   const { state } = useLocation();
@@ -15,6 +17,7 @@ function Article() {
   const { headers, isAuth } = useAuth();
   const navigate = useNavigate();
   const { slug } = useParams();
+  const [wordCountValue, setWordCountValue] = useState(0);
 
   useEffect(() => {
     if (state) return;
@@ -27,10 +30,21 @@ function Article() {
       });
   }, [isAuth, slug, headers, state, navigate]);
 
+  useEffect(() => {
+    if (article && typeof article.body === "string") {
+      setWordCountValue(wordCount(article.body));
+    } else {
+      setWordCountValue(0);
+    }
+  }, [article]);
+
   return (
     <div className="article-page">
       <BannerContainer>
-        <h1>{title}</h1>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <h1>{title}</h1>
+          <WordCount count={wordCountValue} />
+        </div>
         <ArticleMeta author={author} createdAt={createdAt}>
           <ArticlesButtons article={article} setArticle={setArticle} />
         </ArticleMeta>
