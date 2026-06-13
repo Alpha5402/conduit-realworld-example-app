@@ -7,6 +7,7 @@ import ArticleTags from "../../components/ArticleTags";
 import BannerContainer from "../../components/BannerContainer";
 import { useAuth } from "../../context/AuthContext";
 import getArticle from "../../services/getArticle";
+import WordCount from "../../components/WordCount";
 
 function Article() {
   const { state } = useLocation();
@@ -31,6 +32,7 @@ function Article() {
     <div className="article-page">
       <BannerContainer>
         <h1>{title}</h1>
+        <WordCount body={body} />
         <ArticleMeta author={author} createdAt={createdAt}>
           <ArticlesButtons article={article} setArticle={setArticle} />
         </ArticleMeta>
