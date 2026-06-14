@@ -5,14 +5,19 @@ import getArticle from "../../services/getArticle";
 import setArticle from "../../services/setArticle";
 import FormFieldset from "../FormFieldset";
 
-const emptyForm = { title: "", description: "", body: "", tagList: "" };
+const emptyForm = { title: "", description: "", body: "", tagList: "", status: "draft" };
 
 function ArticleEditorForm() {
   const { state } = useLocation();
-  const [{ title, description, body, tagList }, setForm] = useState(
-    state || emptyForm,
+  const [form, setForm] = useState(
+    state
+      ? { title: state.title, description: state.description, body: state.body, tagList: state.tagList, status: state.status || "draft" }
+      : emptyForm,
   );
+  const [currentStatus, setCurrentStatus] = useState(state?.status || "draft");
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [navigateSlug, setNavigateSlug] = useState(null);
   const { isAuth, headers, loggedUser } = useAuth();
 
   const navigate = useNavigate();
@@ -25,15 +30,22 @@ function ArticleEditorForm() {
     if (state || !slug) return;
 
     getArticle({ headers, slug })
-      .then(({ author: { username }, body, description, tagList, title }) => {
+      .then(({ author: { username }, body, description, tagList, title, status }) => {
         if (username !== loggedUser.username) redirect();
 
-        setForm({ body, description, tagList, title });
+        setForm({ body, description, tagList, title, status: status || "draft" });
+        setCurrentStatus(status || "draft");
       })
       .catch(console.error);
 
     return () => setForm(emptyForm);
   }, [headers, isAuth, loggedUser.username, navigate, slug, state]);
+
+  useEffect(() => {
+    if (navigateSlug) {
+      navigate(`/article/${navigateSlug}`);
+    }
+  }, [navigateSlug, navigate]);
 
   const inputHandler = (e) => {
     const type = e.target.name;
@@ -48,23 +60,44 @@ function ArticleEditorForm() {
     setForm((form) => ({ ...form, tagList: value.split(/,| /) }));
   };
 
-  const formSubmit = (e) => {
+  const handleSaveDraft = (e) => {
     e.preventDefault();
+    setErrorMessage("");
+    setSuccessMessage("");
 
-    setArticle({ headers, slug, body, description, tagList, title })
-      .then((slug) => navigate(`/article/${slug}`))
+    setArticle({ headers, slug, body: form.body, description: form.description, tagList: form.tagList, title: form.title, status: "draft" })
+      .then((newSlug) => {
+        setSuccessMessage("Article saved as draft!");
+        setNavigateSlug(newSlug);
+      })
       .catch(setErrorMessage);
   };
 
+  const handlePublish = (e) => {
+    e.preventDefault();
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    setArticle({ headers, slug, body: form.body, description: form.description, tagList: form.tagList, title: form.title, status: "published" })
+      .then((newSlug) => {
+        setSuccessMessage("Article published!");
+        setNavigateSlug(newSlug);
+      })
+      .catch(setErrorMessage);
+  };
+
+  const showDraftButton = currentStatus !== "published";
+
   return (
-    <form onSubmit={formSubmit}>
+    <form>
       <fieldset>
-        {errorMessage && <span className="error-messages">{errorMessage}</span>}
+        {errorMessage && <span data-testid="error-message" className="error-messages">{errorMessage}</span>}
+        {successMessage && <span data-testid="success-message" className="success-messages">{successMessage}</span>}
         <FormFieldset
           placeholder="Article Title"
           name="title"
           required
-          value={title}
+          value={form.title}
           handler={inputHandler}
         ></FormFieldset>
 
@@ -73,7 +106,7 @@ function ArticleEditorForm() {
           placeholder="What's this article about?"
           name="description"
           required
-          value={description}
+          value={form.description}
           handler={inputHandler}
         ></FormFieldset>
 
@@ -84,7 +117,7 @@ function ArticleEditorForm() {
             placeholder="Write your article (in markdown)"
             name="body"
             required
-            value={body}
+            value={form.body}
             onChange={inputHandler}
           ></textarea>
         </fieldset>
@@ -93,15 +126,30 @@ function ArticleEditorForm() {
           normal
           placeholder="Enter tags"
           name="tags"
-          value={tagList}
+          value={form.tagList}
           handler={tagsInputHandler}
         >
           <div className="tag-list"></div>
         </FormFieldset>
 
-        <button className="btn btn-lg pull-xs-right btn-primary" type="submit">
-          {slug ? "Update Article" : "Publish Article"}
-        </button>
+        <div className="btn-group pull-xs-right">
+          {showDraftButton && (
+            <button
+              className="btn btn-lg btn-secondary"
+              type="button"
+              onClick={handleSaveDraft}
+            >
+              Save as Draft
+            </button>
+          )}
+          <button
+            className="btn btn-lg btn-primary"
+            type="button"
+            onClick={handlePublish}
+          >
+            {slug ? "Update Article" : "Publish Article"}
+          </button>
+        </div>
       </fieldset>
     </form>
   );
